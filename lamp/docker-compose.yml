@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+    mysql:
+        image: mysql:8.2
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DB_NAME}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - lamp-network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            PMA_HOST: mysql
+        ports:
+            - "8080:80"
+        depends_on:
+            - mysql
+        networks:
+            - lamp-network
+
+    webserver:
+        image: php:8.2-apache
+        ports:
+            - "80:80"
+        volumes:
+            - ./www:/var/www/html
+        depends_on:
+            - mysql
+        networks:
+            - lamp-network
+
+volumes:
+    mysql_data:
+
+networks:
+    lamp-network:
+        driver: bridge
